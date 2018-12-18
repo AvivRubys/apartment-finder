@@ -69,10 +69,10 @@ class EnhancedAd {
             .compact()
             .map(str => str.trim())
             .uniq()
-            .map(str => str.startsWith('//') ? 'http:' + str : str)
+            .map(str => (str.startsWith('//') ? 'http:' + str : str))
             .value();
         this.adNumber = _.get(apiResponse, 'data.ad_number', 'unknown');
-        this.url = _.get(apiResponse, 'data.canonical_url');
+        this.url = `https://m.yad2.co.il/ad/${this.id}`;
     }
 }
 

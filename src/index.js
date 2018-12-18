@@ -2,7 +2,6 @@ const os = require('os');
 const geolib = require('geolib');
 const moment = require('moment');
 const _ = require('lodash');
-const co = require('co');
 
 const fetcher = require('./fetcher');
 const dispatcher = require('./dispatcher');
@@ -21,55 +20,63 @@ function addMatchingAreas(ad) {
         .filter(area => geolib.isPointInside(ad.coordinates, area.points))
         .flatMap(area => area.labels)
         .value();
-    
+
     ad.setMatchingAreas(matchingAreas);
 }
 
-const processAds = co.wrap(function*() {
+async function processAds() {
     const summary = new Stats();
 
-    const processPage = function*(pageNumber) {
-        const page = yield fetcher.fetchPage({page: currentPage});
+    async function processPage(pageNumber) {
+        const page = await fetcher.fetchPage({page: currentPage});
         const ads = parseAds(page);
 
         summary.increment('retrieved', ads.length);
 
-        const enhancedAds = yield _.chain(ads)
-            .filter(ad => !adsRepository.wasAlreadySent(ad.id))
-            .forEach(ad => summary.increment('not_already_handled'))
-            .filter(ad => ad.coordinates.latitude && ad.coordinates.longitude)
-            .forEach(ad => summary.increment('has_coordinates'))
-            .forEach(ad => addMatchingAreas(ad))
-            .filter(ad => ad.matchingAreas.length > 0)
-            .forEach(ad => summary.increment('within_polygon'))
-            .map(ad => fetcher.fetchAd(ad).then(extraAdData => new EnhancedAd(ad, extraAdData)))
-            .value();
+        const enhancedAds = await Promise.all(
+            _.chain(ads)
+                .filter(ad => !adsRepository.wasAlreadySent(ad.id))
+                .forEach(ad => summary.increment('not_already_handled'))
+                .filter(ad => ad.coordinates.latitude && ad.coordinates.longitude)
+                .forEach(ad => summary.increment('has_coordinates'))
+                .forEach(ad => addMatchingAreas(ad))
+                .filter(ad => ad.matchingAreas.length > 0)
+                .forEach(ad => summary.increment('within_polygon'))
+                .map(async ad => {
+                    const extraAdData = await fetcher.fetchAd(ad);
 
-        yield _.chain(enhancedAds)
-            .filter(ad => ad.isEntranceKnown) // If you want instant entrance you need to comment this and the next two lines
-            .forEach(ad => summary.increment('has_known_entrance_date'))
-            .filter(ad => ad.entrance >= query.minimumEntranceDate)
-            .forEach(ad => summary.increment('after_minimal_entrance_date'))
-            .map(ad => 
-                dispatcher(ad).then(() => {
+                    return new EnhancedAd(ad, extraAdData);
+                })
+                .value()
+        );
+
+        await Promise.all(
+            _.chain(enhancedAds)
+                .filter(ad => ad.isEntranceKnown) // If you want instant entrance you need to comment this and the next two lines
+                .forEach(ad => summary.increment('has_known_entrance_date'))
+                .filter(ad => ad.entrance >= query.minimumEntranceDate)
+                .forEach(ad => summary.increment('after_minimal_entrance_date'))
+                .map(async ad => {
+                    await dispatcher(ad);
                     adsRepository.updateSent(ad.id);
                     summary.increment('dispatched');
                 })
-            )
-            .value();
+                .value()
+        );
 
-        yield adsRepository.flush();
+        await adsRepository.flush();
         management.updateStats(summary.toHtml());
 
         return {
-            done: page.data.current_page === page.data.total_pages,
+            done: page.data.current_page >= page.data.total_pages,
         };
-    };
+    }
 
     let currentPage = 1;
     while (true) {
         try {
-            const result = yield processPage(currentPage++);
+            const result = await processPage(currentPage);
+            currentPage++;
 
             if (result.done) {
                 break;
@@ -81,7 +88,7 @@ const processAds = co.wrap(function*() {
 
     log('Done with run!');
     log(summary.toString() + os.EOL + os.EOL);
-});
+}
 
 processAds();
 setInterval(processAds, 60 * 60 * 1000);
