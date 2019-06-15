@@ -5,7 +5,7 @@ const parseIsraelDate = x => moment(x, 'DD/MM/YYYY');
 module.exports = {
     areas: [
         {
-            labels: ['new apartment', 'מרכז תל אביב'],
+            labels: ['מרכז תל אביב'],
             points: [
                 {latitude: 32.086111, longitude: 34.769027},
                 {latitude: 32.084575, longitude: 34.785463},
@@ -14,7 +14,7 @@ module.exports = {
             ],
         },
         {
-            labels: ['new apartment', 'דרום תל אביב'],
+            labels: ['דרום תל אביב'],
             points: [
                 {latitude: 32.0671196, longitude: 34.7626948},
                 {latitude: 32.0533444, longitude: 34.7541547},
@@ -27,22 +27,21 @@ module.exports = {
             ],
         },
     ],
-    minimumEntranceDate: parseIsraelDate('15/08/2017'),
+    minimumEntranceDate: parseIsraelDate('01/08/2019'),
     apartment: {
         cat: 2,
         subcat: 2,
-        fromPrice: 4500,
-        toPrice: 6500,
+        fromPrice: 3500,
+        toPrice: 7000,
         city: 1800,
         fromRooms: 2,
         toRooms: 3.5,
-        fromSquareMeter: 50,
-        toSquareMeter: 85,
+        fromSquareMeter: 60,
 
         // Only add the filters you actually need. 0 = false, 1 = true, commented out = whatever
         // parking: 1,
         // elevator: 1,
-        airConditioner: 1,
+        // airConditioner: 1,
         // bars: 1,
         // shelter: 1,
         // renovated: 1,
