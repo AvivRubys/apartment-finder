@@ -5,12 +5,31 @@ const parseIsraelDate = x => moment(x, 'DD/MM/YYYY');
 module.exports = {
     areas: [
         {
+            labels: ['גבעתיים'],
+            points: [
+                {longitude: 34.8191865, latitude: 32.0773327},
+                {longitude: 34.8148092, latitude: 32.0790781},
+                {longitude: 34.8015912, latitude: 32.0754781},
+                {longitude: 34.8021491, latitude: 32.0706052},
+                {longitude: 34.8175128, latitude: 32.0699869},
+            ],
+        },
+        {
             labels: ['מרכז תל אביב'],
             points: [
                 {latitude: 32.086111, longitude: 34.769027},
                 {latitude: 32.084575, longitude: 34.785463},
                 {latitude: 32.073346, longitude: 34.782014},
                 {latitude: 32.062221, longitude: 34.773691},
+            ],
+        },
+        {
+            labels: ['תל אביב צפון ישן'],
+            points: [
+                {longitude: 34.7753954, latitude: 32.097888},
+                {longitude: 34.7695279, latitude: 32.0853231},
+                {longitude: 34.7982264, latitude: 32.0809448},
+                {longitude: 34.8026896, latitude: 32.0997057},
             ],
         },
         {
@@ -22,7 +41,7 @@ module.exports = {
                 {latitude: 32.0546902, longitude: 34.7650981},
                 {latitude: 32.0547447, longitude: 34.7721148},
                 {latitude: 32.0605369, longitude: 34.7738957},
-                {latitude: 32.0606141, longitude: 34.7707790},
+                {latitude: 32.0606141, longitude: 34.770779},
                 {latitude: 32.0671196, longitude: 34.7626948},
             ],
         },
@@ -33,7 +52,7 @@ module.exports = {
         subcat: 2,
         fromPrice: 3500,
         toPrice: 7000,
-        city: 1800,
+        city: 5000, // 5000 - TLV, 6300 - Givatayim
         fromRooms: 2,
         toRooms: 3.5,
         fromSquareMeter: 60,
