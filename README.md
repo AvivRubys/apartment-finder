@@ -31,6 +31,22 @@ OR
   }
 }
 
+OR
+
+{
+  "dispatcher": {
+    "type": "slack",
+    "slack": {
+      "hooks": {
+        "default": "webhook from slack app",
+        "byLabel": {
+          "גבעתיים": "webhook from slack app"
+        }
+      }
+    }
+  }
+}
+
 ```
 
 * Edit query.js
